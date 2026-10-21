@@ -1,0 +1,106 @@
+name: Bug report
+description: Something behaves incorrectly
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A small, complete reproduction is worth more than
+        a long description: the `.mc` or `.asm` file plus the keys you pressed
+        is usually enough. For visual problems, a screenshot helps a lot.
+
+  - type: input
+    id: version
+    attributes:
+      label: MasseyCode version
+      description: Release version, or the commit you built.
+      placeholder: 0.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS 14 (Sonoma) or newer
+        - macOS 13 or older
+        - Built from source
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where does it happen?
+      options:
+        - Machine view / CPU diagram
+        - Memory block
+        - Machine Code view
+        - Assembler view
+        - Toolbar or keyboard shortcut
+        - Window, title bar or layout
+        - Headless mode (--dump)
+        - Build or packaging
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps, starting from a known state.
+      placeholder: |
+        1. Open examples/05-loop.mc
+        2. Press F11 twice
+        3. Press F10
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Include the exact footer text if the problem is in the machine view.
+    validations:
+      required: true
+
+  - type: textarea
+    id: program
+    attributes:
+      label: Program or input
+      description: Paste the program text if the bug depends on it.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, terminal output or screenshots
+      description: Paste `--dump` output or attach images.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched the existing issues and this is not a duplicate.
+          required: true
+        - label: I am not reporting a security vulnerability (those go to Security Advisories).
+          required: true

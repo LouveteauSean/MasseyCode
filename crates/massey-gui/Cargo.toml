@@ -1,0 +1,15 @@
+[package]
+name = "massey-gui"
+description = "A visual debugger for the MASSEY teaching machine."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "masseycode"
+path = "src/main.rs"
+
+[dependencies]
+massey-core.workspace = true
+gpui-kit = "0.7"

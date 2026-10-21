@@ -1,0 +1,124 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  windows:
+    name: Windows package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+
+      # GPUI compiles its HLSL shaders with fxc.exe in release builds.  The
+      # Windows SDK on the runner has it; point the build script at it.
+      - name: Locate the DirectX shader compiler
+        shell: pwsh
+        run: |
+          $kits = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin"
+          $fxc = Get-ChildItem $kits -Recurse -Filter fxc.exe -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match '\\x64\\' } |
+            Select-Object -First 1
+          if ($fxc) {
+            "GPUI_FXC_PATH=$($fxc.FullName)" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+            Write-Host "using $($fxc.FullName)"
+          } else {
+            Write-Warning "fxc.exe not found; GPUI will search the SDK itself"
+          }
+
+      # The icon resource and the GUI subsystem are applied by `windres`, which
+      # exists only for the GNU toolchain, so the shipped binary is GNU-built.
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          install: mingw-w64-x86_64-gcc
+          path-type: inherit
+
+      - name: Add the GNU toolchain
+        shell: pwsh
+        run: rustup toolchain install stable-x86_64-pc-windows-gnu --profile minimal
+
+      - name: Build
+        shell: msys2 {0}
+        run: cargo +stable-x86_64-pc-windows-gnu build -p massey-gui --release
+
+      - name: Headless smoke test
+        shell: pwsh
+        run: ./target/release/masseycode.exe examples/01-addition.mc --dump=2
+
+      - name: Package
+        shell: pwsh
+        run: ./scripts/package-windows.ps1 -NoBuild
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MasseyCode-win64
+          path: dist/MasseyCode-win64.zip
+          if-no-files-found: error
+
+  macos:
+    name: macOS package
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+
+      - name: Build the application bundle
+        run: bash scripts/make-macos-app.sh
+
+      - name: Headless smoke test
+        run: ./dist/MasseyCode.app/Contents/MacOS/masseycode examples/01-addition.mc --dump=2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MasseyCode-macos
+          path: dist/MasseyCode-macos.zip
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: [windows, macos]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/MasseyCode-win64.zip
+            artifacts/MasseyCode-macos.zip
+          generate_release_notes: true
+          fail_on_unmatched_files: true

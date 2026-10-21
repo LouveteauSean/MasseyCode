@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = ["crates/massey-core", "crates/massey-gui"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.92"
+license = "MIT"
+authors = ["LouveteauSean"]
+repository = "https://github.com/LouveteauSean/MasseyCode"
+homepage = "https://github.com/LouveteauSean/MasseyCode"
+keywords = ["massey", "teaching-machine", "emulator", "debugger", "gui"]
+categories = ["education", "emulators"]
+
+[workspace.dependencies]
+massey-core = { path = "crates/massey-core" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+
+# GPUI is unusably slow when its dependencies are built without optimisation,
+# even in a debug build of our own crate.
+[profile.dev.package."*"]
+opt-level = 2

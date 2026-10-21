@@ -1,0 +1,71 @@
+name: Feature request
+description: Suggest a change to the debugger, the machine model or the build
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        MasseyCode is a teaching tool, so the bar for a new feature is not
+        "is it possible" but "does it help someone understand the machine".
+        The first question below matters more than the rest.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the situation, not the solution. Who is stuck, and why?
+      placeholder: A student watching a LOAD instruction cannot tell which memory word is being read.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What should happen instead? Mockups, screenshots and ASCII sketches are welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including "do nothing" — sometimes an existing key or pane already covers it.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Machine view / CPU diagram
+        - Memory block
+        - Machine Code view
+        - Assembler view
+        - Debugger behaviour (stepping, run, history)
+        - Keyboard and toolbar
+        - Help and documentation
+        - Build, packaging, platforms
+        - Machine model (massey-core)
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Course level, class size, other tools you compared with, related issues.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched the existing issues and this is not a duplicate.
+          required: true
+        - label: I have described the teaching problem, not only the UI change.
+          required: true

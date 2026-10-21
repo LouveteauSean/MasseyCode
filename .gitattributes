@@ -1,0 +1,25 @@
+# Normalise every text file to LF in the repository.
+* text=auto eol=lf
+
+# Windows entry points keep CRLF so they run from cmd.exe and PowerShell.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets.
+*.png binary
+*.jpg binary
+*.ico binary
+*.icns binary
+*.exe binary
+*.zip binary
+*.pdf binary
+*.woff2 binary
+
+# Machine listings are plain hex text and diff cleanly.
+*.mc text eol=lf
+*.asm text eol=lf
+
+# Lock file is generated; do not hide it from diffs, but do not count it as
+# hand-written source either.
+Cargo.lock linguist-generated=true
